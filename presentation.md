@@ -11,7 +11,7 @@ class: center, middle
 2. Angular CLI & Angular Playground
 3. Demo: TabGroupComponent
 4. Exercise: ChartComponent
-5. Discussion: Observables, RxJS, services, architecture...
+5. Discussion: Services, Architecture, RxJS...
 
 ---
 
@@ -395,3 +395,95 @@ export interface ChartDataSet {
   data: number[];
 }
 ```
+
+---
+
+# Discussion: Angular Services
+```typescript
+@Injectable()
+export class UserService {
+  private user: BehaviorSubject<User>;
+  
+  constructor(private afs: AngularFirestore) {
+    this.user = new BehaviorSubject<User>(null);
+  }
+  
+  public get user$(): Observable<User> {
+    return this.user.asObservable();
+  }
+  
+  public loadUser(userId: string): void {
+    this.afs.doc(`users/${userId}`)
+      .valueChanges()
+      .subscribe(data => this.user.next(data));
+  }
+}
+```
+---
+
+# Discussion: Angular Services
+```typescript
+@Component({
+  selector: 'app-some-page',
+  template: `
+    <some-component [user]="user$ | async"></some-component>
+  `
+})
+export class SomePage implements OnInit {
+  public user$: Observable<User>;
+  
+  constructor(private userService: UserService) {
+    this.user$ = null;
+  }
+  
+  public ngOnInit(): void {
+    this.user$ = this.userService.user$.pipe(
+      map(user => {
+        if (user) {
+          // do stuff
+        }
+        return user;
+      })
+    );
+    
+    this.userService.loadUser('some-user-id');
+  }
+}
+```
+---
+
+### Discussion: App Structure
+```yaml
+- app
+  |-- core
+  |   |-- authentication
+  |   |   |-- index.ts
+  |   |   |-- authentication.service.ts
+  |   |   |-- authentication.service.spec.ts
+  |   |-- [+] user
+  |   |-- core.module.ts (> app.module.ts)
+  |-- public
+  |   |-- pages
+  |   |   |-- home
+  |   |   |   |-- index.ts
+  |   |   |   |-- home.component.ts
+  |   |   |   |-- home.component.spec.ts
+  |   |   |   |-- home.component.scss
+  |   |   |   |-- home.component.html
+  |   |   |-- [+] singup
+  |   |   |-- [+] signin
+  |   |-- [+] components
+  |   |-- [+] services
+  |   |-- [+] pipes  
+  |   |-- [+] ...
+  |   |-- public.module.ts (lazy)
+  |-- admin
+  |   [+] ...
+  |   |-- admin.module.ts (lazy)
+  |-- app.module.ts
+```
+---
+class: center, middle
+# Discussion: RxJS
+
+Can somebody please write documentation for the documentation?!
