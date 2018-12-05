@@ -487,3 +487,8 @@ class: center, middle
 # Discussion: RxJS
 
 Can somebody please write documentation for the documentation?!
+---
+# Cool other stuff
+
+- Prettier - opinionated code formatter (https://prettier.io/)
+- Husky - git hooks made easy (https://github.com/typicode/husky)
